@@ -87,6 +87,10 @@ THE SOFTWARE.
 # include <stdbool.h>
 #endif /* defined(__EMSCRIPTEN__) */
 
+#if defined(ESP_PLATFORM)
+#include "esp_random.h"
+#endif
+
 #if defined(_WIN32)
 static int randombytes_win32_randombytes(void *buf, const size_t n) {
     HCRYPTPROV ctx;
@@ -325,6 +329,13 @@ static int randombytes_js_randombytes_nodejs(void *buf, size_t n) {
 }
 #endif /* defined(__EMSCRIPTEN__) */
 
+#if defined(ESP_PLATFORM)
+static int randombytes_esp_randombytes(void *buf, size_t n) {
+    esp_fill_random(buf, n);
+    return 0;
+}
+#endif
+
 int randombytes(uint8_t *output, size_t n) {
     void *buf = (void *)output;
     #if defined(__EMSCRIPTEN__)
@@ -349,6 +360,9 @@ int randombytes(uint8_t *output, size_t n) {
     #elif defined(__wasi__)
     /* Use WASI */
     return randombytes_wasi_randombytes(buf, n);
+    #elif defined(ESP_PLATFORM)
+    /* Use ESP32-IDF random (uses TRNG if enabled or using WiFi / bluetooth) */
+    return randombytes_esp_randombytes(buf,n);
     #else
 # error "randombytes(...) is not supported on this platform"
     #endif
