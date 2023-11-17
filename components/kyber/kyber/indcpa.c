@@ -273,15 +273,19 @@ void PQCLEAN_KYBER512_CLEAN_indcpa_enc(uint8_t c[KYBER_INDCPA_BYTES],
     }
     PQCLEAN_KYBER512_CLEAN_poly_getnoise_eta2(&epp, coins, nonce++);
 
+    // remove this
     PQCLEAN_KYBER512_CLEAN_polyvec_ntt(&sp);
 
+    // replace this with kroenecker substitution
     // matrix-vector multiplication
     for (i = 0; i < KYBER_K; i++) {
         PQCLEAN_KYBER512_CLEAN_polyvec_basemul_acc_montgomery(&b.vec[i], &at[i], &sp);
     }
 
+    // replace with kroenecker substitution + mult
     PQCLEAN_KYBER512_CLEAN_polyvec_basemul_acc_montgomery(&v, &pkpv, &sp);
 
+    // remove these?
     PQCLEAN_KYBER512_CLEAN_polyvec_invntt_tomont(&b);
     PQCLEAN_KYBER512_CLEAN_poly_invntt_tomont(&v);
 
