@@ -1,0 +1,2 @@
+# This project makes heavy use of the stack
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=102400

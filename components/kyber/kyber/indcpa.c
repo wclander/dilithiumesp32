@@ -158,6 +158,9 @@ void PQCLEAN_KYBER512_CLEAN_gen_matrix(polyvec *a, const uint8_t seed[KYBER_SYMB
     unsigned int buflen, off;
     uint8_t buf[GEN_MATRIX_NBLOCKS * XOF_BLOCKBYTES + 2];
     xof_state state;
+    uint8_t ctx[PQC_SHAKECTX_BYTES];
+
+    state.ctx = ctx;
 
     for (i = 0; i < KYBER_K; i++) {
         for (j = 0; j < KYBER_K; j++) {
