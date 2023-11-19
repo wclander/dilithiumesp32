@@ -3,3 +3,5 @@ sdkconfig
 sdkconfig.old
 debug.log
 .vscode/
+managed_components/
+dependencies.lock
