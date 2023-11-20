@@ -63,7 +63,7 @@ void PQCLEAN_KYBER512_CLEAN_kyber_shake256_rkprf(uint8_t out[KYBER_SSBYTES], con
     shake256incctx s;
     uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
 
-    s.ctx = ctx;
+    s.ctx = (uint64_t *) ctx;
 
     shake256_inc_init(&s);
     shake256_inc_absorb(&s, key, KYBER_SYMBYTES);

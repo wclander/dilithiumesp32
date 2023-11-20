@@ -687,7 +687,7 @@ void shake128(uint8_t *output, size_t outlen,
     shake128ctx s;
     uint8_t ctx[PQC_SHAKECTX_BYTES];
 
-    s.ctx = ctx;
+    s.ctx = (uint64_t *) ctx;
 
     shake128_absorb(&s, input, inlen);
     shake128_squeezeblocks(output, nblocks, &s);
@@ -721,7 +721,7 @@ void shake256(uint8_t *output, size_t outlen,
     shake256ctx s;
     uint8_t ctx[PQC_SHAKECTX_BYTES];
 
-    s.ctx = ctx;
+    s.ctx = (uint64_t *) ctx;
 
     shake256_absorb(&s, input, inlen);
     shake256_squeezeblocks(output, nblocks, &s);
