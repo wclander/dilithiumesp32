@@ -19,7 +19,7 @@ void app_main(void)
     size_t siglen;
 
     const size_t mlen = 13;
-    const uint8_t m = "TEST MESSAGE";
+    const uint8_t m[] = "TEST MESSAGE";
 
     ccomp_timer_start();
 
@@ -34,7 +34,7 @@ void app_main(void)
     int64_t sign_time = ccomp_timer_get_time();
     
     // Verify Signed message
-    int result = PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(sig, siglen, m, mlen, sk);
+    int result = PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(sig, siglen, m, mlen, pk);
 
     int64_t verify_time = ccomp_timer_stop();
 

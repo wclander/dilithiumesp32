@@ -351,6 +351,9 @@ void PQCLEAN_DILITHIUM5_CLEAN_poly_uniform(poly *a,
     unsigned int buflen = POLY_UNIFORM_NBLOCKS * STREAM128_BLOCKBYTES;
     uint8_t buf[POLY_UNIFORM_NBLOCKS * STREAM128_BLOCKBYTES + 2];
     stream128_state state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     stream128_init(&state, seed, nonce);
     stream128_squeezeblocks(buf, POLY_UNIFORM_NBLOCKS, &state);
@@ -430,6 +433,9 @@ void PQCLEAN_DILITHIUM5_CLEAN_poly_uniform_eta(poly *a,
     unsigned int buflen = POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES;
     uint8_t buf[POLY_UNIFORM_ETA_NBLOCKS * STREAM256_BLOCKBYTES];
     stream256_state state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     stream256_init(&state, seed, nonce);
     stream256_squeezeblocks(buf, POLY_UNIFORM_ETA_NBLOCKS, &state);
@@ -460,6 +466,9 @@ void PQCLEAN_DILITHIUM5_CLEAN_poly_uniform_gamma1(poly *a,
         uint16_t nonce) {
     uint8_t buf[POLY_UNIFORM_GAMMA1_NBLOCKS * STREAM256_BLOCKBYTES];
     stream256_state state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     stream256_init(&state, seed, nonce);
     stream256_squeezeblocks(buf, POLY_UNIFORM_GAMMA1_NBLOCKS, &state);
@@ -482,6 +491,9 @@ void PQCLEAN_DILITHIUM5_CLEAN_poly_challenge(poly *c, const uint8_t seed[SEEDBYT
     uint64_t signs;
     uint8_t buf[SHAKE256_RATE];
     shake256incctx state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     shake256_inc_init(&state);
     shake256_inc_absorb(&state, seed, SEEDBYTES);

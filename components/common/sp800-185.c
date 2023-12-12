@@ -122,6 +122,9 @@ void cshake128(uint8_t *output, size_t outlen,
                const uint8_t *cstm, size_t cstmlen,
                const uint8_t *input, size_t inlen) {
     shake128incctx state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
     cshake128_inc_init(&state, name, namelen, cstm, cstmlen);
     cshake128_inc_absorb(&state, input, inlen);
     cshake128_inc_finalize(&state);
@@ -148,6 +151,9 @@ void cshake256(uint8_t *output, size_t outlen,
                const uint8_t *cstm, size_t cstmlen,
                const uint8_t *input, size_t inlen) {
     shake256incctx state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
     cshake256_inc_init(&state, name, namelen, cstm, cstmlen);
     cshake256_inc_absorb(&state, input, inlen);
     cshake256_inc_finalize(&state);

@@ -90,6 +90,9 @@ int PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_signature(uint8_t *sig,
     polyveck t0, s2, w1, w0, h;
     poly cp;
     shake256incctx state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     rho = seedbuf;
     tr = rho + SEEDBYTES;
@@ -241,6 +244,9 @@ int PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(const uint8_t *sig,
     polyvecl mat[K], z;
     polyveck t1, w1, h;
     shake256incctx state;
+    uint8_t ctx[PQC_SHAKEINCCTX_BYTES];
+
+    state.ctx = (uint64_t *) ctx;
 
     if (siglen != PQCLEAN_DILITHIUM5_CLEAN_CRYPTO_BYTES) {
         return -1;
