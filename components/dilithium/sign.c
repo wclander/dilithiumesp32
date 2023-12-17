@@ -6,6 +6,7 @@
 #include "randombytes.h"
 #include "sign.h"
 #include "symmetric.h"
+#include "multpoly.h"
 #include <stdint.h>
 
 /*************************************************
@@ -117,9 +118,10 @@ int PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_signature(uint8_t *sig,
 
     /* Expand matrix and transform vectors */
     PQCLEAN_DILITHIUM5_CLEAN_polyvec_matrix_expand(mat, rho);
-    PQCLEAN_DILITHIUM5_CLEAN_polyvecl_ntt(&s1);
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_ntt(&s2);
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_ntt(&t0);
+    // Removed, since we don't use NTT on s1, s2, t0
+    //PQCLEAN_DILITHIUM5_CLEAN_polyvecl_ntt(&s1);
+    //PQCLEAN_DILITHIUM5_CLEAN_polyveck_ntt(&s2);
+    //PQCLEAN_DILITHIUM5_CLEAN_polyveck_ntt(&t0);
 
 rej:
     /* Sample intermediate vector y */
@@ -144,11 +146,11 @@ rej:
     shake256_inc_squeeze(sig, CTILDEBYTES, &state);
     shake256_inc_ctx_release(&state);
     PQCLEAN_DILITHIUM5_CLEAN_poly_challenge(&cp, sig); /* uses only the first SEEDBYTES bytes of sig */
-    PQCLEAN_DILITHIUM5_CLEAN_poly_ntt(&cp);
+    //PQCLEAN_DILITHIUM5_CLEAN_poly_ntt(&cp);
 
     /* Compute z, reject if it reveals secret */
-    PQCLEAN_DILITHIUM5_CLEAN_polyvecl_pointwise_poly_montgomery(&z, &cp, &s1);
-    PQCLEAN_DILITHIUM5_CLEAN_polyvecl_invntt_tomont(&z);
+    // Use Kronecker instead of NTT
+    mult_polyvecl(&z, &cp, &s1);
     PQCLEAN_DILITHIUM5_CLEAN_polyvecl_add(&z, &z, &y);
     PQCLEAN_DILITHIUM5_CLEAN_polyvecl_reduce(&z);
     if (PQCLEAN_DILITHIUM5_CLEAN_polyvecl_chknorm(&z, GAMMA1 - BETA)) {
@@ -157,8 +159,8 @@ rej:
 
     /* Check that subtracting cs2 does not change high bits of w and low bits
      * do not reveal secret information */
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_pointwise_poly_montgomery(&h, &cp, &s2);
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_invntt_tomont(&h);
+    // Use Kronecker instead of NTT
+    mult_polyveck(&h, &cp, &s2);
     PQCLEAN_DILITHIUM5_CLEAN_polyveck_sub(&w0, &w0, &h);
     PQCLEAN_DILITHIUM5_CLEAN_polyveck_reduce(&w0);
     if (PQCLEAN_DILITHIUM5_CLEAN_polyveck_chknorm(&w0, GAMMA2 - BETA)) {
@@ -166,8 +168,8 @@ rej:
     }
 
     /* Compute hints for w1 */
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_pointwise_poly_montgomery(&h, &cp, &t0);
-    PQCLEAN_DILITHIUM5_CLEAN_polyveck_invntt_tomont(&h);
+    // Use Kronecker instead of NTT
+    mult_polyveck(&h, &cp, &t0);
     PQCLEAN_DILITHIUM5_CLEAN_polyveck_reduce(&h);
     if (PQCLEAN_DILITHIUM5_CLEAN_polyveck_chknorm(&h, GAMMA2)) {
         goto rej;

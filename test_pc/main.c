@@ -27,7 +27,7 @@ int main() {
     int result = PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(sig, siglen, m, mlen, pk);
 
     printf("Sig: %x\n", sig[0]);
-    printf("Verification Result: %d\n", result);
+    printf("Verification Result: %s\n", result ? "failure" : "success");
 
     // Test polynomial multiplication
     test_poly_mult();
