@@ -24,11 +24,6 @@ void setup_hwmult() {
     while(!IS_RSA_ENABLED);
 }
 
-void mod_mult_2048(uint8_t *result, const uint8_t *a, const uint8_t *b, const uint8_t *m) {
-    return;
-}
-//void mod_mult_4096_async();
-
 // copy count uint32_t from src to reg
 void copy_reg_uint_32t(volatile uint32_t *reg, const uint32_t *src, size_t count) {
     for (size_t i = 0; i < count; i++) {
@@ -48,6 +43,37 @@ void set_reg_uint32_t(volatile uint32_t *reg, const uint32_t val, size_t count) 
     for (size_t i = 0; i < count; i++) {
         reg[i] = val;
     }
+}
+
+void mod_mult_4096(uint8_t *result, const uint8_t *a, const uint8_t *b, const uint8_t *m, const uint8_t *r, uint32_t m_prime) {
+    assert(IS_RSA_ENABLED);
+
+    DPORT_REG_WRITE(RSA_MULT_MODE_REG, 4096 / 512 - 1); // Set the output length parameter to 4096 bits
+    copy_reg_uint_32t((volatile uint32_t *) RSA_MEM_X_BLOCK_BASE, (uint32_t *) a, 4096 / 32); // a
+    copy_reg_uint_32t((volatile uint32_t *) RSA_MEM_M_BLOCK_BASE, (uint32_t *) m, 4096 / 32); // m
+    copy_reg_uint_32t((volatile uint32_t *) RSA_MEM_Z_BLOCK_BASE, (uint32_t *) r, 4096 / 32); // r
+    DPORT_REG_WRITE(RSA_M_DASH_REG, m_prime); // m'
+
+    DPORT_REG_WRITE(RSA_MULT_START_REG, 1); // Start first calculation
+
+    // Wait for first calculation
+    while(DPORT_REG_READ(RSA_INTERRUPT_REG) != 1);
+
+    DPORT_REG_WRITE(RSA_INTERRUPT_REG, 1);
+
+    copy_reg_uint_32t((volatile uint32_t *) RSA_MEM_X_BLOCK_BASE, (uint32_t *) b, 4096 / 32); // b
+
+    DPORT_REG_WRITE(RSA_MULT_START_REG, 1); // Start second calculation
+
+    // Wait for second calculation
+    while(DPORT_REG_READ(RSA_INTERRUPT_REG) != 1);
+
+    // Retrieve result
+    copy_from_reg_uint_32t((uint32_t *) result, (volatile uint32_t *) RSA_MEM_Z_BLOCK_BASE, 4096 / 32);
+    
+    DPORT_REG_WRITE(RSA_INTERRUPT_REG, 1);
+
+    return;
 }
 
 void mult_2048(uint8_t *result, const uint8_t *a, const uint8_t *b) {
@@ -72,4 +98,3 @@ void mult_2048(uint8_t *result, const uint8_t *a, const uint8_t *b) {
 
     return;
 }
-//void mult_4096_async();
