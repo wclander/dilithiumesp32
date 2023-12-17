@@ -16,6 +16,8 @@ make
 ```
 ├── components
 │   └── dilithium               Dilithium implementation based on PQClean
+│       └── multpoly.h          Functions to multiply polynomials using Kronecker substitution
+│       └── hwmult.h            Provides functions that use the RSA coprocessor on the ESP32
 │   └── common                  Common files from PQClean
 ├── main
 │   └── main.c                  Main executable for ESP32
