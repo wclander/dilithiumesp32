@@ -141,7 +141,7 @@ void poly_mult(poly *c, const poly *a, const poly *b) {
     PQCLEAN_DILITHIUM5_CLEAN_poly_caddq(&bp);
 
     // Expanding the integers to 64-bit means they will be stored in Kronecker form
-    //  in memory as this is equivalent to
+    //  in memory as this is equivalent to evaluating the polynomial at 2^64
     poly64 a64, b64;
     poly_to_poly64(&a64, &ap);
     poly_to_poly64(&b64, &bp);
@@ -153,5 +153,17 @@ void poly_mult(poly *c, const poly *a, const poly *b) {
     //Coefficient recovery
     for (int i = 0; i < N; i++) {
         c->coeffs[i] = result.coeffs[i];
+    }
+}
+
+void mult_polyvecl(polyvecl *c, const poly *a, const polyvecl *b) {
+    for (int i = 0; i < L; i++) {
+        poly_mult(&c->vec[i], a, &b->vec[i]);
+    }
+}
+
+void mult_polyveck(polyveck *c, const poly *a, const polyveck *b) {
+    for (int i = 0; i < K; i++) {
+        poly_mult(&c->vec[i], a, &b->vec[i]);
     }
 }
