@@ -183,8 +183,8 @@ void karatsuba_4096(uint32_t *result, uint32_t *a, uint32_t *b) {
     
     uint32_t z_0[128], z_1[128], z_2[128];
 
-    mult_2048(z_0, la, lb);
-    mult_2048(z_2, ha, hb);
+    mult_2048((uint8_t *) z_0, (uint8_t *) la, (uint8_t *) lb);
+    mult_2048((uint8_t *) z_2, (uint8_t *) ha, (uint8_t *) hb);
 
     // since we don't need la,lb anymore, save memory 
     //  by reusing them for la + ha and lb + hb
@@ -192,7 +192,7 @@ void karatsuba_4096(uint32_t *result, uint32_t *a, uint32_t *b) {
     add_2048(lb, lb, hb);
 
     // z_1 = (la + ha)(lb + hb) - z_0 - z_2
-    mult_2048(z_1, la, lb);
+    mult_2048((uint8_t *) z_1, (uint8_t *) la, (uint8_t *) lb);
     sub_4096(z_1, z_1, z_0);
     sub_4096(z_1, z_1, z_2);
 
