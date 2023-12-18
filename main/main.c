@@ -27,15 +27,11 @@ void app_main(void)
     setup_hwmult();
     ESP_LOGI(TAG, "Successfully setup RSA peripheral");
 
-    //esp_task_wdt_config_t config = {1000, 3, 1};
-
-    //esp_task_wdt_init(&config);
-
     test_mult();
 
-    test_mod_mult();
+    //test_mod_mult();
 
-    test_poly_mult();
+    //test_poly_mult();
 
     test_sign();
 
@@ -66,6 +62,7 @@ void test_sign() {
     int64_t sign_time = ccomp_timer_get_time();
     
     // Verify Signed message
+    //  this should return 0 iff the modified sign algorithm produced a valid signature
     int result = PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(sig, siglen, m, mlen, pk);
 
     int64_t verify_time = ccomp_timer_stop();

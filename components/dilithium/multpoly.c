@@ -12,12 +12,6 @@
     void mult_2048(uint8_t *result, const uint8_t *a, const uint8_t *b) {}
 #endif
 
-/*
-    Implementations below use algorithms introduced in:
-
-    https://doi.org/10.13154/tches.v2019.i1.169-208 
-*/
-
 typedef struct {
     // equivalent to a 16384-bit integer if little endian
     int64_t coeffs[N];

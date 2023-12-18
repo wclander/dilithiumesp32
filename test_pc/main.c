@@ -24,6 +24,7 @@ int main() {
     PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_signature(sig, &siglen, m, mlen, sk);
     
     // Verify Signed message
+    //  this should return 0 if the above call produced a valid signature
     int result = PQCLEAN_DILITHIUM5_CLEAN_crypto_sign_verify(sig, siglen, m, mlen, pk);
 
     printf("First byte of signature: %x\n", sig[0]);
@@ -33,6 +34,9 @@ int main() {
     test_poly_mult();
 }
 
+/*
+    Multiply two polynomials using both 
+*/
 void test_poly_mult() {
     poly a = {0};
     poly b = {0};
