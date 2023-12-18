@@ -1,10 +1,13 @@
 #include "api.h"
 #include "hwmult.h"
+#include "multpoly.h"
+
 #include <stdint.h>
 #include <stddef.h>
 
 #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
 #include "esp_log.h"
+#include "esp_task_wdt.h"
 
 const char*TAG = "dilithium_tests";
 
@@ -17,14 +20,22 @@ void test_mod_mult();
 
 void test_sign();
 
+void test_poly_mult();
+
 void app_main(void)
 {
     setup_hwmult();
     ESP_LOGI(TAG, "Successfully setup RSA peripheral");
 
+    //esp_task_wdt_config_t config = {1000, 3, 1};
+
+    //esp_task_wdt_init(&config);
+
     test_mult();
 
     test_mod_mult();
+
+    test_poly_mult();
 
     test_sign();
 
@@ -61,11 +72,14 @@ void test_sign() {
 
     ESP_LOG_BUFFER_HEX("Signature: ", sig, siglen);
 
-    ESP_LOGI(TAG, "Verification Result: %d", result);
+    ESP_LOGI(TAG, "Verification Result: %s\n", result ? "failure" : "success");
 
     ESP_LOGI(TAG, "Keygen: %qdus, Sign: %qdus, Verify: %qdus", keygen_time, sign_time, verify_time);
 }
 
+/*
+    Test big integer multiplication
+*/
 void test_mult() {
     uint8_t rm[4096 / 8];
     // 1
@@ -132,6 +146,9 @@ void test_mult() {
     ESP_LOG_BUFFER_HEX("Mult result: ", rm, sizeof(rm));
 }
 
+/*
+    Test modular multiplication
+*/
 void test_mod_mult() {
     uint8_t rm[4096 / 8];
     // 2
@@ -362,4 +379,43 @@ void test_mod_mult() {
     mod_mult_4096(rm, a, b, m, r, m_prime);
 
     ESP_LOG_BUFFER_HEX("Modular Mult result: ", rm, sizeof(rm));
+}
+
+/*
+    Test polynomial multiplication
+*/
+void test_poly_mult() {
+    poly a = {0};
+    poly b = {0};
+
+    poly result;
+    poly result2;
+
+    // we use one small and one large polynomial, since all of the 
+    //  replaced polynomial multiplications have at least one
+    //  polynomial with small coefficients
+    for (int i = 0; i < N; i++) {
+        a.coeffs[i] = i % 2 ? 1 : -1; // test both positive and negative
+        b.coeffs[i] = 10 * i + 2000000;
+    }
+
+    // Kronecker multiplication
+    poly_mult(&result, &a, &b);
+    PQCLEAN_DILITHIUM5_CLEAN_poly_reduce(&result);
+
+    // Original NTT multiplication
+    PQCLEAN_DILITHIUM5_CLEAN_poly_ntt(&a);
+    PQCLEAN_DILITHIUM5_CLEAN_poly_ntt(&b);
+    PQCLEAN_DILITHIUM5_CLEAN_poly_pointwise_montgomery(&result2, &a, &b);
+    PQCLEAN_DILITHIUM5_CLEAN_poly_invntt_tomont(&result2);
+    PQCLEAN_DILITHIUM5_CLEAN_poly_reduce(&result2);
+
+    //ESP_LOG_BUFFER_HEX("Result Kronecker: ", result.coeffs, sizeof(result.coeffs));
+    //ESP_LOG_BUFFER_HEX("Result NTT: ", result2.coeffs, sizeof(result2.coeffs));
+
+    for (int i = 0; i < N; i++) {
+        if (result.coeffs[i] != result2.coeffs[i]) {
+            ESP_LOGI(TAG, "Coefficients do not match: %ld,%ld\n", result.coeffs[i], result2.coeffs[i]);
+        }
+    }
 }
